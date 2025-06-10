@@ -95,6 +95,7 @@ void generate_individual(Individual* ind) {
                 used[fixed[i][j]] = 1;
             }
         }
+
         for (int j = 0; j < SIZE; j++) {
             if (!fixed[i][j]) {
                 int val;
@@ -222,20 +223,20 @@ void mutate(Individual* ind, int rate) {
     ind->fitness = count_conflicts(ind->grid);
 }
 
+int compare_individuals(const void* a, const void* b) {
+    const Individual* ia = (const Individual*)a;
+    const Individual* ib = (const Individual*)b;
+    return ia->fitness - ib->fitness;
+}
+
+// --- Algorytm genetyczny ---
 
 int genetic_algorithm(int attempt) {
     Individual population[POP_SIZE];
     for (int i = 0; i < POP_SIZE; i++) generate_individual(&population[i]);
 
     for (int gen = 0; gen < MAX_GENERATIONS; gen++) {
-        qsort(population, POP_SIZE, sizeof(Individual),
-              (int (*)(const void*, const void*))strcmp);
-
-        qsort(population, POP_SIZE, sizeof(Individual), (int(*)(const void*,const void*)) [](const void* a, const void* b) -> int {
-            const Individual* ia = (const Individual*)a;
-            const Individual* ib = (const Individual*)b;
-            return ia->fitness - ib->fitness;
-        });
+        qsort(population, POP_SIZE, sizeof(Individual), compare_individuals);
 
         if (population[0].fitness < best_overall_fitness) {
             best_overall = population[0];
@@ -263,6 +264,7 @@ int genetic_algorithm(int attempt) {
             Individual* p1;
             Individual* p2;
 
+            // selekcja
             switch (selection_type) {
                 case SELECTION_ROULETTE:
                     p1 = roulette_selection(population);
@@ -290,6 +292,7 @@ int genetic_algorithm(int attempt) {
     return 0;
 }
 
+// --- Załaduj przykładowe sudoku ---
 
 void load_example() {
     int ex[SIZE][SIZE] = {
